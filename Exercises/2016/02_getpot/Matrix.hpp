@@ -5,7 +5,7 @@ class Matrix
 protected: 
   int nl_; 
   int nc_;
-  Matrix (int nl_, int nc);
+  Matrix (int nl, int nc);
 
 public: 
   ~Matrix();
