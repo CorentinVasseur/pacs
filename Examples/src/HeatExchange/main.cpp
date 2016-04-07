@@ -36,11 +36,14 @@ int main(int argc, char** argv)
   using namespace std; // avoid std::
   int status(0); // final program status
   GetPot   cl(argc, argv);
+ 
+  //if the user enter -h or --help we print the help
   if( cl.search(2, "-h", "--help") )
     {
       printHelp();
       return 0;
     }
+
   // check if we want verbosity
   bool verbose=cl.search(1,"-v");
   // Get file with parameter values
@@ -51,6 +54,7 @@ int main(int argc, char** argv)
   // Transfer parameters to local variables
   // I use references to save memory (not really an issue here, it is just
   // to show a possible  use of references)
+  const  auto& name=param.name;  //name of the file that we will find the result
   const int&    itermax= param.itermax;   //max number of iteration for Gauss-Siedel
   const double& toler=param.toler;   // Tolerance for stopping criterion
   // Here I use auto (remember that you need const and & if you want constant references)
@@ -126,8 +130,8 @@ int main(int argc, char** argv)
      std::vector<double> sol(M+1);
      std::vector<double> exact(M+1);
 
-     cout<<"Result file: result.dat"<<endl;
-     ofstream f("result.dat");
+     cout<<"Result file: " << name <<endl;
+     ofstream f(name);
      for(int m = 0; m<= M; m++)
        {
 	 // \t writes a tab 

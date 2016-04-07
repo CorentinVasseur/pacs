@@ -1,8 +1,12 @@
 #ifndef HH_Parameters_HH
 #define HH_Parameters_HH
 #include <iosfwd>
+#include <string>
+
 struct parameters
 {
+  // name of the file that we will find the results
+  std::string name;
   //! max number of iteration for Gauss-Siedel
   int   itermax;
   //! Tolerance for stopping criterion
@@ -25,6 +29,7 @@ struct parameters
   int M;
   //! Constructor takes default values
   parameters():
+    name("result.dat"),
     itermax(1000000),
     toler(1e-8),
     L(40.),

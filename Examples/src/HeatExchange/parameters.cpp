@@ -3,6 +3,7 @@
 std::ostream & operator << (std::ostream & out,const parameters & p)
 {
   out<<"PARAMETER VALUES:"<<"\n";
+  out<<"name= "<<p.name<<"\n";
   out<<"itermax= "<<p.itermax<<"\n";
   out<<"toler= "<<p.toler<<"\n";
   out<<"L= "<<p.L<<"\n";
