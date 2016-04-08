@@ -20,8 +20,8 @@ parameters readParameters(std::string const & filename,bool verbose)
 
   GetPot ifile(filename.c_str());
   parameters values;
-  // Read parameters from getpot ddata base
-  values.name=ifile("name",defaults.name);
+  // Read parameters from getpot data base
+  values.name=ifile("name",defaults.name.c_str());
   values.itermax=ifile("itermax",defaults.itermax);
   values.toler=ifile("toler",defaults.toler);
   values.L=ifile("L",defaults.L);
@@ -32,6 +32,7 @@ parameters readParameters(std::string const & filename,bool verbose)
   values.k=ifile("k",defaults.k);
   values.hc=ifile("hc",defaults.hc);
   values.M=ifile("M",defaults.M);
+
   if(verbose)
     {
       std::cout<<"PARAMETER VALUES IN GETPOT FILE"<<"\n";

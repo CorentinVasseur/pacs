@@ -130,7 +130,7 @@ int main(int argc, char** argv)
      std::vector<double> sol(M+1);
      std::vector<double> exact(M+1);
 
-     cout<<"Result file: " << name <<endl;
+     cout<<"Result file: "<<name<<endl;
      ofstream f(name);
      for(int m = 0; m<= M; m++)
        {
