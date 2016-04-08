@@ -5,6 +5,8 @@
 
 struct parameters
 {
+  // what do you want ? 
+  int choice;
   // name of the file that we will find the results
   std::string name;
   //! max number of iteration for Gauss-Siedel
@@ -29,6 +31,7 @@ struct parameters
   int M;
   //! Constructor takes default values
   parameters():
+    choice(3),
     name("result.dat"),
     itermax(1000000),
     toler(1e-8),
