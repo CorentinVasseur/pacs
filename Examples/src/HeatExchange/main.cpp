@@ -54,6 +54,7 @@ int main(int argc, char** argv)
   // Transfer parameters to local variables
   // I use references to save memory (not really an issue here, it is just
   // to show a possible  use of references)
+  const int& choice= param.choice; //what the user want to see (the result, just the file or both)
   const  auto& name=param.name;  //name of the file that we will find the result
   const int&    itermax= param.itermax;   //max number of iteration for Gauss-Siedel
   const double& toler=param.toler;   // Tolerance for stopping criterion
