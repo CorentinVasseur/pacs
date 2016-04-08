@@ -1,7 +1,7 @@
 # Max number of grid elements
 MMAX=501
 # name of the file that we will find the results
-name=test.dat
+name=result.dat
 # max number of iteration for Gauss-Siedel
 itermax=1000000
 # Tolerance for stopping criterion
