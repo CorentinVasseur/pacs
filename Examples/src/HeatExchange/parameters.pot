@@ -3,7 +3,7 @@ MMAX=501
 # what want you ? if 1 you want the result file, if 2 you see the result on the screen, if 3 you want both
 choice=3
 # name of the file that we will find the results
-name=result.dat
+name=file_with_the_results.dat
 # max number of iteration for Gauss-Siedel
 itermax=1000000
 # Tolerance for stopping criterion
