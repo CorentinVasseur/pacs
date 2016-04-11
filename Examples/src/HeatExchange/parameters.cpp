@@ -4,6 +4,7 @@ std::ostream & operator << (std::ostream & out,const parameters & p)
 {
   out<<"PARAMETER VALUES:"<<"\n";
   out<<"choice= "<<p.choice<<"\n";
+  out<<"norm"<<p.norm<<"\n";
   out<<"name= "<<p.name<<"\n";
   out<<"itermax= "<<p.itermax<<"\n";
   out<<"toler= "<<p.toler<<"\n";

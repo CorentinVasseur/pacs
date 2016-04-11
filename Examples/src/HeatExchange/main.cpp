@@ -30,6 +30,8 @@ void printHelp()
   std::cout<<"-v verbose output"<<std::endl;
 }
 
+//! create function for the different choice of the user (just the result, if he wants to see the result, or both)
+
 //! main program
 int main(int argc, char** argv)
 {
@@ -56,6 +58,7 @@ int main(int argc, char** argv)
   // to show a possible  use of references)
   const int& choice= param.choice; //what the user want to see (the result, just the file or both)
   const  auto& name=param.name;  //name of the file that we will find the result
+  const int& norm=param.norm; //the norm that the user have chosen
   const int&    itermax= param.itermax;   //max number of iteration for Gauss-Siedel
   const double& toler=param.toler;   // Tolerance for stopping criterion
   // Here I use auto (remember that you need const and & if you want constant references)
@@ -66,7 +69,7 @@ int main(int argc, char** argv)
   const auto& Te=param.Te; // External temperature (Centigrades)
   const auto& k=param.k;  // Thermal conductivity
   const auto& hc=param.hc; // Convection coefficient
-  const auto&    M=param.M; // Number of grid elements
+  const auto& M=param.M; // Number of grid elements
   
   //! Precomputed coefficient for adimensional form of equation
   const auto act=2.*(a1+a2)*hc*L*L/(k*a1*a2);
@@ -95,9 +98,9 @@ int main(int argc, char** argv)
 	 // first M-1 row of linear system
          for(int m=1;m < M;m++)
          {   
-	   xnew  = (theta[m-1]+theta[m+1])/(2.+h*h*act);
-	   epsilon += (xnew-theta[m])*(xnew-theta[m]);
-	   theta[m] = xnew;
+	         xnew  = (theta[m-1]+theta[m+1])/(2.+h*h*act);
+	         epsilon += (xnew-theta[m])*(xnew-theta[m]);
+	         theta[m] = xnew;
          }
 
 	 //Last row

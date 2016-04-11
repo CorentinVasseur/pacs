@@ -5,10 +5,12 @@
 
 struct parameters
 {
-  // what do you want ? 
+  //! choice the output 
   int choice;
-  // name of the file that we will find the results
+  //! name of the file that we will find the results
   std::string name;
+  //! choice the norm 
+  int norm;
   //! max number of iteration for Gauss-Siedel
   int   itermax;
   //! Tolerance for stopping criterion
@@ -33,6 +35,7 @@ struct parameters
   parameters():
     choice(3),
     name("result.dat"),
+    norm(1),
     itermax(1000000),
     toler(1e-8),
     L(40.),

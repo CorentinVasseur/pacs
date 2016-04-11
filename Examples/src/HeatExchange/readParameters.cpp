@@ -23,6 +23,7 @@ parameters readParameters(std::string const & filename,bool verbose)
   // Read parameters from getpot data base
   values.choice=ifile("choice",defaults.choice);
   values.name=ifile("name",defaults.name.c_str());
+  values.norm=ifile("norm",defaults.norm);
   values.itermax=ifile("itermax",defaults.itermax);
   values.toler=ifile("toler",defaults.toler);
   values.L=ifile("L",defaults.L);

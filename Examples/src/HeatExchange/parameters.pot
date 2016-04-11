@@ -4,6 +4,8 @@ MMAX=501
 choice=3
 # name of the file that we will find the results
 name=result.dat
+# choice a norm (1=Rn, 2=L2, 3=H1)
+norm=1
 # max number of iteration for Gauss-Siedel
 itermax=1000000
 # Tolerance for stopping criterion
