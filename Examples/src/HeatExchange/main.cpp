@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   bool verbose=cl.search(1,"-v");
   // Get file with parameter values
   string filename = cl.follow("parameters.pot","-p");
-  cout<<"Reading parameters from "<<filename<<std::endl;
+  cout<<"\nReading parameters from "<<filename<<std::endl;
   // read parameters
   const parameters param=readParameters(filename,verbose);
   // Transfer parameters to local variables
@@ -71,6 +71,19 @@ int main(int argc, char** argv)
   const auto& hc=param.hc; // Convection coefficient
   const auto& M=param.M; // Number of grid elements
   
+
+  // if the number in the choice variable is not 1, 2 or 3 :
+   if (choice != 1 && choice != 2 && choice != 3)
+  {
+    //becareful input no valide
+    std::cout<<"Your choice in the parameters.pot file is confused. What do you want ?"<<std::endl;
+    std::cout<<"1: if you want to save the values in a file called result.dat by default"<<std::endl;
+    std::cout<<"2: if you want to see the solution"<<std::endl;
+    std::cout<<"3: if you want both\n"<<std::endl;
+    return 0;
+  }
+
+
   //! Precomputed coefficient for adimensional form of equation
   const auto act=2.*(a1+a2)*hc*L*L/(k*a1*a2);
 
@@ -134,59 +147,57 @@ int main(int argc, char** argv)
      std::vector<double> sol(M+1);
      std::vector<double> exact(M+1);
 
-    if (choice==3)
+  //What do the user want ?
+  if (choice==3)
+  {
+    cout<<"Result file: "<<name<<"\n"<<endl;
+    ofstream f(name);
+    for(int m = 0; m<= M; m++)
     {
-      cout<<"Result file: "<<name<<endl;
-      ofstream f(name);
-      for(int m = 0; m<= M; m++)
-      {
-	      // \t writes a tab 
-        f<<m*h*L<<"\t"<<Te*(1.+theta[m])<<"\t"<<thetaa[m]<<endl;
-	       
-        // An example of use of tie and tuples!
-	      std::tie(coor[m],sol[m],exact[m])=
-	      std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
-      }
-
-      // Using temporary files (another nice use of tie)
-      gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
-        "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
-        "w l title 'uex'"<<std::endl;
-      f.close();
-    }
-    else if (choice==1)
-    {
-      cout<<"Result file: "<<name<<endl;
-      ofstream f(name);
-      for(int m = 0; m<= M; m++)
-      {
-        // \t writes a tab 
-        f<<m*h*L<<"\t"<<Te*(1.+theta[m])<<"\t"<<thetaa[m]<<endl;
+     // \t writes a tab 
+      f<<m*h*L<<"\t"<<Te*(1.+theta[m])<<"\t"<<thetaa[m]<<endl;
          
-        // An example of use of tie and tuples!
-        std::tie(coor[m],sol[m],exact[m])=
-        std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
-      }
+      // An example of use of tie and tuples!
+       std::tie(coor[m],sol[m],exact[m])=
+       std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
     }
 
-    else if (choice==2)
+    // Using temporary files (another nice use of tie)
+    gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
+      "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
+      "w l title 'uex'"<<std::endl;
+    f.close();
+  }
+  else if (choice==1)
+  {
+    cout<<"Result file: "<<name<<"\n"<<endl;
+    ofstream f(name);
+    for(int m = 0; m<= M; m++)
     {
-      for(int m = 0; m<= M; m++)
-      {
-        // An example of use of tie and tuples!
-        std::tie(coor[m],sol[m],exact[m])=
-        std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
-      }
+      // \t writes a tab 
+     f<<m*h*L<<"\t"<<Te*(1.+theta[m])<<"\t"<<thetaa[m]<<endl;
+       
+      // An example of use of tie and tuples!
+      std::tie(coor[m],sol[m],exact[m])=
+      std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
+    }
+  }
+
+  else if (choice==2)
+  {
+    for(int m = 0; m<= M; m++)
+    {
+     // An example of use of tie and tuples!
+      std::tie(coor[m],sol[m],exact[m])=
+      std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
+    }
 
       // Using temporary files (another nice use of tie)
-      gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
-        "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
-        "w l title 'uex'"<<std::endl;
-    }
+    gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
+      "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
+      "w l title 'uex'"<<std::endl;
+  }
 
-    else
-    {
-      //becareful input no valide
-    }
+
      return status;
 }
