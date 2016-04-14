@@ -121,16 +121,18 @@ int main(int argc, char** argv)
 	 epsilon += (xnew-theta[M])*(xnew-theta[M]);
 	 theta[M]=  xnew; 
 
-	 iter=iter+1;     
+	 iter++;     
        }while((sqrt(epsilon) > toler) && (iter < itermax) );
+
+
 
     if(iter<itermax)
       cout << "M="<<M<<"  Convergence in "<<iter<<" iterations"<<endl;
     else
       {
-	cerr << "NOT CONVERGING in "<<itermax<<" iterations "<<
-	  "||dx||="<<sqrt(epsilon)<<endl;
-	status=1;
+	       cerr << "NOT CONVERGING in "<<itermax<<" iterations "<<
+	           "||dx||="<<sqrt(epsilon)<<endl;
+	       status=1;
       }
 
  // Analitic solution
