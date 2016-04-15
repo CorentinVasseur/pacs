@@ -100,7 +100,7 @@ int main(int argc, char** argv)
   for(unsigned int m=0;m <= M;++m)
      theta_Rn[m]=(1.-m*h)*(To-Te)/Te;
 
-    theta_L2=theta_Rn;
+  theta_L2=theta_Rn;
   
   // Gauss-Seidel
   // epsilon=||x^{k+1}-x^{k}||
