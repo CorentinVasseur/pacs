@@ -91,19 +91,25 @@ int main(int argc, char** argv)
   const auto h=1./M;
   
   // Solution vector
-  std::vector<double> theta(M+1);
+  std::vector<double> theta_Rn(M+1);
+  std::vector<double> theta_L2(M+1);
   
   // Gauss Siedel is initialised with a linear variation
   // of T
   
   for(unsigned int m=0;m <= M;++m)
-     theta[m]=(1.-m*h)*(To-Te)/Te;
+     theta_Rn[m]=(1.-m*h)*(To-Te)/Te;
+
+    theta_L2=theta_Rn;
   
   // Gauss-Seidel
   // epsilon=||x^{k+1}-x^{k}||
   // Stopping criteria epsilon<=toler
   
-  int iter=0;
+
+  //Rn norm :
+
+  int iter_Rn=0;
   double xnew, epsilon;
      do
        { epsilon=0.;
@@ -111,29 +117,66 @@ int main(int argc, char** argv)
 	 // first M-1 row of linear system
          for(int m=1;m < M;m++)
          {   
-	         xnew  = (theta[m-1]+theta[m+1])/(2.+h*h*act);
-	         epsilon += (xnew-theta[m])*(xnew-theta[m]);
-	         theta[m] = xnew;
+	         xnew  = (theta_Rn[m-1]+theta_Rn[m+1])/(2.+h*h*act);
+	         epsilon += (xnew-theta_Rn[m])*(xnew-theta_Rn[m]);
+	         theta_Rn[m] = xnew;
          }
 
 	 //Last row
-	 xnew = theta[M-1]; 
-	 epsilon += (xnew-theta[M])*(xnew-theta[M]);
-	 theta[M]=  xnew; 
+	 xnew = theta_Rn[M-1]; 
+	 epsilon += (xnew-theta_Rn[M])*(xnew-theta_Rn[M]);
+	 theta_Rn[M]=  xnew; 
 
-	 iter++;     
-       }while((sqrt(epsilon) > toler) && (iter < itermax) );
+	 iter_Rn++;     
+       }while((sqrt(epsilon) > toler) && (iter_Rn < itermax) );
 
 
 
-    if(iter<itermax)
-      cout << "M="<<M<<"  Convergence in "<<iter<<" iterations"<<endl;
+    if(iter_Rn<itermax)
+      cout << "M="<<M<<"  Convergence Rn in "<<iter_Rn<<" iterations"<<endl;
     else
       {
-	       cerr << "NOT CONVERGING in "<<itermax<<" iterations "<<
+	       cerr << "NOT CONVERGING Rn in "<<itermax<<" iterations "<<
 	           "||dx||="<<sqrt(epsilon)<<endl;
 	       status=1;
       }
+
+  //L2 norm :
+
+  int iter_L2=0;
+  xnew=0.;
+     do
+       { epsilon=0.;
+
+   // first M-1 row of linear system
+         for(int m=1;m < M;m++)
+         {   
+           xnew  = (theta_L2[m-1]+theta_L2[m+1])/(2.+h*h*act);
+           epsilon += (xnew-theta_L2[m])*(xnew-theta_L2[m]);
+           theta_L2[m] = xnew;
+         }
+
+   //Last row
+   xnew = theta_L2[M-1]; 
+   epsilon += (xnew-theta_L2[M])*(xnew-theta_L2[M]);
+   epsilon = epsilon*h;
+   theta_L2[M]=  xnew; 
+
+   iter_L2++;     
+       }while((sqrt(epsilon) > toler) && (iter_L2 < itermax) );
+
+
+
+    if(iter_L2<itermax)
+      cout << "M="<<M<<"  Convergence L2 in "<<iter_L2<<" iterations"<<endl;
+    else
+      {
+         cerr << "NOT CONVERGING L2 in "<<itermax<<" iterations "<<
+             "||dx||="<<sqrt(epsilon)<<endl;
+         status=1;
+      }
+
+
 
  // Analitic solution
 
@@ -152,16 +195,18 @@ int main(int argc, char** argv)
   //What do the user want ?
   if (choice==3)
   {
-    cout<<"Result file: "<<name<<"\n"<<endl;
-    ofstream f(name);
+    cout<<"Result file: Rn_"<<name<<endl;
+    std::string name1="Rn_"+name;
+    ofstream f(name1);
     for(int m = 0; m<= M; m++)
     {
      // \t writes a tab 
-      f<<m*h*L<<"\t"<<Te*(1.+theta[m])<<"\t"<<thetaa[m]<<endl;
+      f<<m*h*L<<"\t"<<Te*(1.+theta_Rn[m])<<"\t"<<thetaa[m]<<endl;
          
       // An example of use of tie and tuples!
        std::tie(coor[m],sol[m],exact[m])=
-       std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
+       std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
+
     }
 
     // Using temporary files (another nice use of tie)
@@ -169,6 +214,27 @@ int main(int argc, char** argv)
       "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
       "w l title 'uex'"<<std::endl;
     f.close();
+
+
+    cout<<"Result file: L2_"<<name<<"\n"<<endl;
+    name1="L2_"+name;
+    ofstream f2(name1);
+    for(int m = 0; m<= M; m++)
+    {
+     // \t writes a tab 
+      f2<<m*h*L<<"\t"<<Te*(1.+theta_L2[m])<<"\t"<<thetaa[m]<<endl;
+         
+      // An example of use of tie and tuples!
+      // std::tie(coor[m],sol[m],exact[m])=
+      // std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
+    }
+
+    // Using temporary files (another nice use of tie)
+    //gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
+    //  "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
+    //  "w l title 'uex'"<<std::endl;
+    f2.close();
+
   }
   else if (choice==1)
   {
@@ -177,11 +243,11 @@ int main(int argc, char** argv)
     for(int m = 0; m<= M; m++)
     {
       // \t writes a tab 
-     f<<m*h*L<<"\t"<<Te*(1.+theta[m])<<"\t"<<thetaa[m]<<endl;
+     f<<m*h*L<<"\t"<<Te*(1.+theta_Rn[m])<<"\t"<<thetaa[m]<<endl;
        
       // An example of use of tie and tuples!
       std::tie(coor[m],sol[m],exact[m])=
-      std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
+      std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
     }
   }
 
@@ -191,7 +257,7 @@ int main(int argc, char** argv)
     {
      // An example of use of tie and tuples!
       std::tie(coor[m],sol[m],exact[m])=
-      std::make_tuple(m*h*L,Te*(1.+theta[m]),thetaa[m]);
+      std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
     }
 
       // Using temporary files (another nice use of tie)
