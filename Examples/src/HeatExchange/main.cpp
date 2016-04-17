@@ -521,42 +521,11 @@ int main(int argc, char** argv)
 
     if (norm==3 or norm==13 or norm==23 or norm==123)
     {
-      //!! need change the stopping criterion because here it's like L2
 
       //H1 norm :
       // Gauss-Seidel
       // epsilon=||x^{k+1}-x^{k}||
       // Stopping criteria epsilon<=toler
-
-      int iter_H1=0;
-      xnew=0.;
-      do
-       { epsilon=0.;
-
-      // first M-1 row of linear system
-         for(int m=1;m < M;m++)
-         {   
-           xnew  = (theta_H1[m-1]+theta_H1[m+1])/(2.+h*h*act);
-           epsilon += (xnew-theta_H1[m])*(xnew-theta_H1[m]);//a modifier
-           theta_H1[m] = xnew;
-         }
-
-      //Last row
-      xnew = theta_H1[M-1]; 
-      epsilon += (xnew-theta_H1[M])*(xnew-theta_H1[M]);
-      epsilon = epsilon/h;
-      theta_H1[M]=  xnew; 
-
-      iter_H1++;     
-       }while((sqrt(epsilon) > toler) && (iter_H1 < itermax) );
-
-      if(iter_H1<itermax)
-        cout << "M="<<M<<"  Convergence H1 in "<<iter_H1<<" iterations"<<"\n"<<endl;
-      else
-      {
-         cerr << "NOT CONVERGING H1 in "<<itermax<<" iterations "<<
-             "||dx||="<<sqrt(epsilon)<<endl;
-      }
 
     }
 
