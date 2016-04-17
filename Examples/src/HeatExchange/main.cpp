@@ -83,6 +83,20 @@ int main(int argc, char** argv)
     return 0;
   }
 
+  if (norm!=1 && norm!=2 && norm!=3 && norm!=12 && norm!=13 && norm!=23 && norm!=123)
+  {
+    //becareful input no valide
+    std::cout<<"Your choice of the norm in the parameters.pot file is confused. What do you want ?"<<std::endl;
+    std::cout<<"1: if you want to see the results of the Rn norm"<<std::endl;
+    std::cout<<"2: if you want to see the results of the L2 norm"<<std::endl;
+    std::cout<<"3: if you want to see the results of the H1 norm"<<std::endl;
+    std::cout<<"12: if you want to see the results of the Rn,L2 norm"<<std::endl;
+    std::cout<<"13: if you want to see the results of the Rn,H1 norm"<<std::endl;
+    std::cout<<"23: if you want to see the results of the L2,H1 norm"<<std::endl;  
+    std::cout<<"123: if you want to see the results of the Rn,L2,H1 norm\n"<<std::endl;  
+    return 0;
+  }
+
 
   //! Precomputed coefficient for adimensional form of equation
   const auto act=2.*(a1+a2)*hc*L*L/(k*a1*a2);
@@ -126,8 +140,7 @@ int main(int argc, char** argv)
   //What do the user want ?
   if (choice==3) //if the user want all the norm 
   {
-//tester si norme est conforme !!
-    if (norm==1 or norm==12 or norm==123) //Rn norm
+    if (norm==1 or norm==12 or norm==13 or norm==123) //Rn norm
     {
 
       //Rn norm :
@@ -170,6 +183,7 @@ int main(int argc, char** argv)
 
 
       //Save file and print the result :
+
       cout<<"Result file Rn norm: ./results/Rn_"<<name<<"\n"<<endl;
       name1="./results/Rn_"+name;
       ofstream f(name1);
@@ -195,7 +209,7 @@ int main(int argc, char** argv)
       f.close();
     }
 
-    if (norm==2 or norm==12 or norm==123)
+    if (norm==2 or norm==12 or norm==23 or norm==123)
     {
 
       //L2 norm :
@@ -270,33 +284,217 @@ int main(int argc, char** argv)
 
   else if (choice==1)
   {
-    cout<<"Result file Rn norm: ./results/Rn_"<<name<<endl;
-    std::string name1="./results/Rn_"+name;
-    ofstream f(name1);
-    for(int m = 0; m<= M; m++)
+    if (norm==1 or norm==12 or norm==13 or norm==123) //Rn norm
     {
-      // \t writes a tab 
-     f<<m*h*L<<"\t"<<Te*(1.+theta_Rn[m])<<"\t"<<thetaa[m]<<endl;
-       
-      // An example of use of tie and tuples!
-      std::tie(coor[m],sol[m],exact[m])=
-      std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
+      //Rn norm :
+      // Gauss-Seidel
+      // epsilon=||x^{k+1}-x^{k}||
+      // Stopping criteria epsilon<=toler
+
+      int iter_Rn=0;
+      do
+      { 
+        epsilon=0.;
+
+        // first M-1 row of linear system
+        for(int m=1;m < M;m++)
+        {   
+          xnew  = (theta_Rn[m-1]+theta_Rn[m+1])/(2.+h*h*act);
+          epsilon += (xnew-theta_Rn[m])*(xnew-theta_Rn[m]);
+          theta_Rn[m] = xnew;
+        }
+
+        //Last row
+        xnew = theta_Rn[M-1]; 
+        epsilon += (xnew-theta_Rn[M])*(xnew-theta_Rn[M]);
+        theta_Rn[M]=  xnew; 
+
+        iter_Rn++;     
+        }while((sqrt(epsilon) > toler) && (iter_Rn < itermax) );
+
+
+
+      if(iter_Rn<itermax)
+        cout << "M="<<M<<"  Convergence Rn in "<<iter_Rn<<" iterations"<<endl;
+      else
+      {
+         cerr << "NOT CONVERGING Rn in "<<itermax<<" iterations "<<
+             "||dx||="<<sqrt(epsilon)<<endl;
+         status=1;
+      }
+
+
+      //Save the result in a file :
+
+      cout<<"Result file Rn norm: ./results/Rn_"<<name<<"\n"<<endl;
+      std::string name1="./results/Rn_"+name;
+      ofstream f(name1);
+      for(int m = 0; m<= M; m++)
+      {
+        // \t writes a tab 
+        f<<m*h*L<<"\t"<<Te*(1.+theta_Rn[m])<<"\t"<<thetaa[m]<<endl;
+      }
     }
+
+    if (norm==2 or norm==12 or norm==23 or norm==123) //L2 norm
+    {
+
+      //L2 norm :
+      // Gauss-Seidel
+      // epsilon=||x^{k+1}-x^{k}||
+      // Stopping criteria epsilon<=toler
+
+      int iter_L2=0;
+      xnew=0.;
+      do
+       { epsilon=0.;
+
+      // first M-1 row of linear system
+         for(int m=1;m < M;m++)
+         {   
+           xnew  = (theta_L2[m-1]+theta_L2[m+1])/(2.+h*h*act);
+           epsilon += (xnew-theta_L2[m])*(xnew-theta_L2[m]);
+           theta_L2[m] = xnew;
+         }
+
+      //Last row
+      xnew = theta_L2[M-1]; 
+      epsilon += (xnew-theta_L2[M])*(xnew-theta_L2[M]);
+      epsilon = epsilon*h;
+      theta_L2[M]=  xnew; 
+
+      iter_L2++;     
+       }while((sqrt(epsilon) > toler) && (iter_L2 < itermax) );
+
+
+
+      if(iter_L2<itermax)
+        cout << "M="<<M<<"  Convergence L2 in "<<iter_L2<<" iterations"<<endl;
+      else
+      {
+         cerr << "NOT CONVERGING L2 in "<<itermax<<" iterations "<<
+             "||dx||="<<sqrt(epsilon)<<endl;
+         status=1;
+      }
+
+
+      //Save the result and print the solution : 
+      cout<<"Result file L2 norm: ./results/L2_"<<name<<"\n"<<endl;
+      name1="./results/L2_"+name;
+      ofstream f2(name1);
+      for(int m = 0; m<= M; m++)
+      {
+      // \t writes a tab 
+       f2<<m*h*L<<"\t"<<Te*(1.+theta_L2[m])<<"\t"<<thetaa[m]<<endl;
+      }
+
+      f2.close();
+      
+    }
+
+    if (norm==3 or norm==13 or norm==23 or norm==123)//H1 norm
+    {}
+
   }
 
   else if (choice==2)
   {
-    for(int m = 0; m<= M; m++)
+
+    if (norm==1 or norm==12 or norm==13 or norm==123) //Rn norm
     {
-     // An example of use of tie and tuples!
-      std::tie(coor[m],sol[m],exact[m])=
-      std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
+      //Rn norm :
+      // Gauss-Seidel
+      // epsilon=||x^{k+1}-x^{k}||
+      // Stopping criteria epsilon<=toler
+
+      int iter_Rn=0;
+      do
+      { 
+        epsilon=0.;
+
+        // first M-1 row of linear system
+        for(int m=1;m < M;m++)
+        {   
+          xnew  = (theta_Rn[m-1]+theta_Rn[m+1])/(2.+h*h*act);
+          epsilon += (xnew-theta_Rn[m])*(xnew-theta_Rn[m]);
+          theta_Rn[m] = xnew;
+        }
+
+        //Last row
+        xnew = theta_Rn[M-1]; 
+        epsilon += (xnew-theta_Rn[M])*(xnew-theta_Rn[M]);
+        theta_Rn[M]=  xnew; 
+
+        iter_Rn++;     
+        }while((sqrt(epsilon) > toler) && (iter_Rn < itermax) );
+
+
+
+      if(iter_Rn<itermax)
+        cout << "M="<<M<<"  Convergence Rn in "<<iter_Rn<<" iterations"<<"\n"<<endl;
+      else
+      {
+         cerr << "NOT CONVERGING Rn in "<<itermax<<" iterations "<<
+             "||dx||="<<sqrt(epsilon)<<endl;
+      }
     }
 
+    if (norm==2 or norm==12 or norm==23 or norm==123)
+    {
+      //L2 norm :
+      // Gauss-Seidel
+      // epsilon=||x^{k+1}-x^{k}||
+      // Stopping criteria epsilon<=toler
+
+      int iter_L2=0;
+      xnew=0.;
+      do
+       { epsilon=0.;
+
+      // first M-1 row of linear system
+         for(int m=1;m < M;m++)
+         {   
+           xnew  = (theta_L2[m-1]+theta_L2[m+1])/(2.+h*h*act);
+           epsilon += (xnew-theta_L2[m])*(xnew-theta_L2[m]);
+           theta_L2[m] = xnew;
+         }
+
+      //Last row
+      xnew = theta_L2[M-1]; 
+      epsilon += (xnew-theta_L2[M])*(xnew-theta_L2[M]);
+      epsilon = epsilon*h;
+      theta_L2[M]=  xnew; 
+
+      iter_L2++;     
+       }while((sqrt(epsilon) > toler) && (iter_L2 < itermax) );
+
+      if(iter_L2<itermax)
+        cout << "M="<<M<<"  Convergence L2 in "<<iter_L2<<" iterations"<<"\n"<<endl;
+      else
+      {
+         cerr << "NOT CONVERGING L2 in "<<itermax<<" iterations "<<
+             "||dx||="<<sqrt(epsilon)<<endl;
+      }
+
+    }
+
+    if (norm==3 or norm==13 or norm==23 or norm==123)
+    {}
+
+
+    //to see the result :
+      for(int m = 0; m<= M; m++)
+      {
+      // An example of use of tie and tuples!
+        std::tie(coor[m],sol[m],exact[m])=
+        std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
+      }
+
       // Using temporary files (another nice use of tie)
-    gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
-      "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
-      "w l title 'uex'"<<std::endl;
+      gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
+        "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
+        "w l title 'uex'"<<std::endl;
+
   }
 
 
