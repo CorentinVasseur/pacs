@@ -50,7 +50,7 @@ int main(int argc, char** argv)
   bool verbose=cl.search(1,"-v");
   // Get file with parameter values
   string filename = cl.follow("parameters.pot","-p");
-  cout<<"\nReading parameters from "<<filename<<std::endl;
+  cout<<"\nReading parameters from "<<filename<<"\n"<<std::endl;
   // read parameters
   const parameters param=readParameters(filename,verbose);
   // Transfer parameters to local variables
@@ -102,81 +102,6 @@ int main(int argc, char** argv)
 
   theta_L2=theta_Rn;
   
-  // Gauss-Seidel
-  // epsilon=||x^{k+1}-x^{k}||
-  // Stopping criteria epsilon<=toler
-  
-
-  //Rn norm :
-
-  int iter_Rn=0;
-  double xnew, epsilon;
-     do
-       { epsilon=0.;
-
-	 // first M-1 row of linear system
-         for(int m=1;m < M;m++)
-         {   
-	         xnew  = (theta_Rn[m-1]+theta_Rn[m+1])/(2.+h*h*act);
-	         epsilon += (xnew-theta_Rn[m])*(xnew-theta_Rn[m]);
-	         theta_Rn[m] = xnew;
-         }
-
-	 //Last row
-	 xnew = theta_Rn[M-1]; 
-	 epsilon += (xnew-theta_Rn[M])*(xnew-theta_Rn[M]);
-	 theta_Rn[M]=  xnew; 
-
-	 iter_Rn++;     
-       }while((sqrt(epsilon) > toler) && (iter_Rn < itermax) );
-
-
-
-    if(iter_Rn<itermax)
-      cout << "M="<<M<<"  Convergence Rn in "<<iter_Rn<<" iterations"<<endl;
-    else
-      {
-	       cerr << "NOT CONVERGING Rn in "<<itermax<<" iterations "<<
-	           "||dx||="<<sqrt(epsilon)<<endl;
-	       status=1;
-      }
-
-  //L2 norm :
-
-  int iter_L2=0;
-  xnew=0.;
-     do
-       { epsilon=0.;
-
-   // first M-1 row of linear system
-         for(int m=1;m < M;m++)
-         {   
-           xnew  = (theta_L2[m-1]+theta_L2[m+1])/(2.+h*h*act);
-           epsilon += (xnew-theta_L2[m])*(xnew-theta_L2[m]);
-           theta_L2[m] = xnew;
-         }
-
-   //Last row
-   xnew = theta_L2[M-1]; 
-   epsilon += (xnew-theta_L2[M])*(xnew-theta_L2[M]);
-   epsilon = epsilon*h;
-   theta_L2[M]=  xnew; 
-
-   iter_L2++;     
-       }while((sqrt(epsilon) > toler) && (iter_L2 < itermax) );
-
-
-
-    if(iter_L2<itermax)
-      cout << "M="<<M<<"  Convergence L2 in "<<iter_L2<<" iterations"<<endl;
-    else
-      {
-         cerr << "NOT CONVERGING L2 in "<<itermax<<" iterations "<<
-             "||dx||="<<sqrt(epsilon)<<endl;
-         status=1;
-      }
-
-
 
  // Analitic solution
 
@@ -186,60 +111,168 @@ int main(int argc, char** argv)
 
      // writing results with format
      // x_i u_h(x_i) u(x_i) and lauch gnuplot 
+    Gnuplot gp;
+    std::vector<double> coor(M+1);
+    std::vector<double> sol(M+1);
+    std::vector<double> exact(M+1);
 
-     Gnuplot gp;
-     std::vector<double> coor(M+1);
-     std::vector<double> sol(M+1);
-     std::vector<double> exact(M+1);
+
+    std::string name1;
+    int test=0;
+
+    double xnew, epsilon;
+
 
   //What do the user want ?
-  if (choice==3)
+  if (choice==3) //if the user want all the norm 
   {
-    cout<<"Result file: Rn_"<<name<<endl;
-    std::string name1="Rn_"+name;
-    ofstream f(name1);
-    for(int m = 0; m<= M; m++)
+//tester si norme est conforme !!
+    if (norm==1 or norm==12 or norm==123) //Rn norm
     {
-     // \t writes a tab 
-      f<<m*h*L<<"\t"<<Te*(1.+theta_Rn[m])<<"\t"<<thetaa[m]<<endl;
-         
-      // An example of use of tie and tuples!
-       std::tie(coor[m],sol[m],exact[m])=
-       std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
 
+      //Rn norm :
+      // Gauss-Seidel
+      // epsilon=||x^{k+1}-x^{k}||
+      // Stopping criteria epsilon<=toler
+
+
+      int iter_Rn=0;
+      do
+      { 
+        epsilon=0.;
+
+        // first M-1 row of linear system
+        for(int m=1;m < M;m++)
+        {   
+          xnew  = (theta_Rn[m-1]+theta_Rn[m+1])/(2.+h*h*act);
+          epsilon += (xnew-theta_Rn[m])*(xnew-theta_Rn[m]);
+          theta_Rn[m] = xnew;
+        }
+
+        //Last row
+        xnew = theta_Rn[M-1]; 
+        epsilon += (xnew-theta_Rn[M])*(xnew-theta_Rn[M]);
+        theta_Rn[M]=  xnew; 
+
+        iter_Rn++;     
+        }while((sqrt(epsilon) > toler) && (iter_Rn < itermax) );
+
+
+
+      if(iter_Rn<itermax)
+        cout << "M="<<M<<"  Convergence Rn in "<<iter_Rn<<" iterations"<<endl;
+      else
+      {
+         cerr << "NOT CONVERGING Rn in "<<itermax<<" iterations "<<
+             "||dx||="<<sqrt(epsilon)<<endl;
+         status=1;
+      }
+
+
+      //Save file and print the result :
+      cout<<"Result file Rn norm: ./results/Rn_"<<name<<"\n"<<endl;
+      name1="./results/Rn_"+name;
+      ofstream f(name1);
+      for(int m = 0; m<= M; m++)
+      {
+       // \t writes a tab 
+        f<<m*h*L<<"\t"<<Te*(1.+theta_Rn[m])<<"\t"<<thetaa[m]<<endl;
+         
+        // An example of use of tie and tuples!
+         std::tie(coor[m],sol[m],exact[m])=
+         std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
+
+      }
+
+      // Using temporary files (another nice use of tie)
+      gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
+        "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
+        "w l title 'uex'"<<std::endl;
+
+      //binary to know if the user can see the graph (on purpose to not see a lot of time the graph with different norm)
+      test=1;
+
+      f.close();
     }
 
-    // Using temporary files (another nice use of tie)
-    gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
+    if (norm==2 or norm==12 or norm==123)
+    {
+
+      //L2 norm :
+      // Gauss-Seidel
+      // epsilon=||x^{k+1}-x^{k}||
+      // Stopping criteria epsilon<=toler
+
+      int iter_L2=0;
+      xnew=0.;
+      do
+       { epsilon=0.;
+
+      // first M-1 row of linear system
+         for(int m=1;m < M;m++)
+         {   
+           xnew  = (theta_L2[m-1]+theta_L2[m+1])/(2.+h*h*act);
+           epsilon += (xnew-theta_L2[m])*(xnew-theta_L2[m]);
+           theta_L2[m] = xnew;
+         }
+
+      //Last row
+      xnew = theta_L2[M-1]; 
+      epsilon += (xnew-theta_L2[M])*(xnew-theta_L2[M]);
+      epsilon = epsilon*h;
+      theta_L2[M]=  xnew; 
+
+      iter_L2++;     
+       }while((sqrt(epsilon) > toler) && (iter_L2 < itermax) );
+
+
+
+      if(iter_L2<itermax)
+        cout << "M="<<M<<"  Convergence L2 in "<<iter_L2<<" iterations"<<endl;
+      else
+      {
+         cerr << "NOT CONVERGING L2 in "<<itermax<<" iterations "<<
+             "||dx||="<<sqrt(epsilon)<<endl;
+         status=1;
+      }
+
+
+      //Save the result and print the solution : 
+      cout<<"Result file L2 norm: ./results/L2_"<<name<<"\n"<<endl;
+      name1="./results/L2_"+name;
+      ofstream f2(name1);
+      for(int m = 0; m<= M; m++)
+      {
+      // \t writes a tab 
+       f2<<m*h*L<<"\t"<<Te*(1.+theta_L2[m])<<"\t"<<thetaa[m]<<endl;
+         
+        if (test==0)
+        {
+          std::tie(coor[m],sol[m],exact[m])=
+          std::make_tuple(m*h*L,Te*(1.+theta_L2[m]),thetaa[m]); 
+        } 
+      }
+
+      // Using temporary files (another nice use of tie)
+      if (test==0)
+     {
+       gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
       "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
-      "w l title 'uex'"<<std::endl;
-    f.close();
+       "w l title 'uex'"<<std::endl; 
+      }
 
+      test=1;
 
-    cout<<"Result file: L2_"<<name<<"\n"<<endl;
-    name1="L2_"+name;
-    ofstream f2(name1);
-    for(int m = 0; m<= M; m++)
-    {
-     // \t writes a tab 
-      f2<<m*h*L<<"\t"<<Te*(1.+theta_L2[m])<<"\t"<<thetaa[m]<<endl;
-         
-      // An example of use of tie and tuples!
-      // std::tie(coor[m],sol[m],exact[m])=
-      // std::make_tuple(m*h*L,Te*(1.+theta_Rn[m]),thetaa[m]);
+      f2.close();
     }
-
-    // Using temporary files (another nice use of tie)
-    //gp<<"plot"<<gp.file1d(std::tie(coor,sol))<<
-    //  "w lp title 'uh',"<< gp.file1d(std::tie(coor,exact))<<
-    //  "w l title 'uex'"<<std::endl;
-    f2.close();
-
   }
+
+
   else if (choice==1)
   {
-    cout<<"Result file: "<<name<<"\n"<<endl;
-    ofstream f(name);
+    cout<<"Result file Rn norm: ./results/Rn_"<<name<<endl;
+    std::string name1="./results/Rn_"+name;
+    ofstream f(name1);
     for(int m = 0; m<= M; m++)
     {
       // \t writes a tab 
