@@ -1,3 +1,5 @@
+Create a directory called « results » 
+
 
 Little example of a program that computes the temperature in a bar solving
 the 1D heat equation with a Gauss-Siedel  iteration. 
