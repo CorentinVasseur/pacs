@@ -5,6 +5,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <limits>
+
 namespace Geometry{
   
   double distance(Point2D const & a, Point2D const & b){
