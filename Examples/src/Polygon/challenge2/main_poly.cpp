@@ -8,7 +8,6 @@ int main()
 
   Grid grip;
   grip.read("mesh.dat");
-
   std::cout << "Sum of the areas: " << grip.sum_area() << "\n" << std::endl;
 
 }
