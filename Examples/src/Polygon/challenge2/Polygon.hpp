@@ -87,7 +87,7 @@ namespace Geometry
     /*! 
       It checks convexity if check=true
      */
-    AbstractPolygon(Vertices const & v, bool check=true);
+    AbstractPolygon(std::vector<unsigned int> const & v, Vertices * vertexes, bool check=true);
     //! Default constructor is defaulted
     /*! 
       It is up to the derived classes to fill the vertexex and other info correctly
@@ -111,11 +111,13 @@ namespace Geometry
       guaranteed to be an integral type, more precisely
       a type convertible to unsigned int).
     */
-    Vertices::size_type size() const {return vertexes.size();}
+    std::vector<unsigned int>::size_type size() const {return indexes.size();}
     //! Is the polygon convex?
     bool isConvex() const {return isconvex;}
     //! Returns the vertices (read only)
-    Vertices const & theVertices()const {return vertexes;}
+    std::vector<unsigned int> const & theIndexes()const {return indexes;}
+    //! Returns the point in point2d
+    Point2D thePoints(unsigned int i_) const {return vertexes->at(i_);}
     //! Outputs some info on the polygon
     virtual void showMe(std::ostream & out=std::cout) const;
     //! The area of the polygon (with sign!).
@@ -125,7 +127,8 @@ namespace Geometry
     */
     virtual double area() const=0;
   protected:
-    Vertices vertexes;
+    std::vector<unsigned int> indexes;
+    Vertices * vertexes;
     bool isconvex;
     //! Test convexity of the polygon
     void checkConvexity();
@@ -141,7 +144,7 @@ namespace Geometry
   public:
     //! Default constructor.
     //! Polygon may be constructed giving Vertices;
-    Polygon(Vertices const & v);
+    Polygon(std::vector<unsigned int> const & v, Vertices * vertixes);
     //! Destructor
     virtual ~Polygon(){};
     /*!
@@ -160,14 +163,14 @@ namespace Geometry
   class Square final: public AbstractPolygon
   {
   public:
-    Square(Vertices const & v);
+    Square(std::vector<unsigned int> const & v, Vertices * vertexes);
     //!Special constructor valid only for squares.
     /*!
       /param origin Point which gives the first vertex of the square.
       /param length The length of the side.
       /param angle In radians, tells how the square is  rotated. 
      */
-    Square(Point2D origin, double length,double angle=0.0);
+    //Square(Point2D origin, double length,double angle=0.0);
     Square(Square const &)=default;
     Square(Square&&)=default;
     Square & operator=(const Square &)=default;
@@ -182,7 +185,7 @@ namespace Geometry
   class Triangle final: public AbstractPolygon
   {
   public:
-    Triangle(Vertices const &);
+    Triangle(std::vector<unsigned int> const & v, Vertices * vertexes);
     Triangle(Triangle const &)=default;
     Triangle(Triangle&&)=default;
     Triangle & operator=(const Triangle &)=default;

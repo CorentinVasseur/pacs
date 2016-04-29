@@ -48,8 +48,10 @@ void Grid::read (std::string filename)
 		//Connectivity :
 		std::cout<<"\nPolygon: "<<"\n"<<std::endl;	
 		int type;
-		int n1,n2,n3,n4;
-		Geometry::Vertices v;
+		unsigned int n1,n2,n3,n4;
+
+
+		Geometry::Vertices * v = &(this->point2d_vector);
 
 		for (int i = 0; i < NB_POLYGONS; ++i)
 		{
@@ -64,13 +66,15 @@ void Grid::read (std::string filename)
 
 					std::cout << "Triangle: "<< n1 << n2 << n3 << std::endl;
 
-			 		v.push_back(point2d_vector[n1]);
-			 		v.push_back(point2d_vector[n2]);
-			 		v.push_back(point2d_vector[n3]);
+					std::vector<unsigned int> tmp;					
+					tmp.reserve(3);
 
-     	  			std::shared_ptr<Geometry::Triangle> share_type(new Geometry::Triangle(v));
+			 		tmp.push_back(n1);
+			 		tmp.push_back(n2);
+			 		tmp.push_back(n3);
+
+     	  			std::shared_ptr<Geometry::Triangle> share_type(new Geometry::Triangle(tmp,v));
      	  			polygon_vector.push_back(share_type);
-     	  			v.clear();
 
 					break;
 				}
@@ -81,14 +85,16 @@ void Grid::read (std::string filename)
 
 					std::cout << "Square: "<< n1 << n2 << n3 << n4 << std::endl;
 
-			 		v.push_back(point2d_vector[n1]);
-			 		v.push_back(point2d_vector[n2]);
-			 		v.push_back(point2d_vector[n3]);
-			 		v.push_back(point2d_vector[n4]);
+					std::vector<unsigned int> tmp;
+					tmp.reserve(4);
+
+			 		tmp.push_back(n1);
+			 		tmp.push_back(n2);
+			 		tmp.push_back(n3);
+			 		tmp.push_back(n4);
 			 				 					 		
-     	  			std::shared_ptr<Geometry::Square> share_type(new Geometry::Square(v));
+     	  			std::shared_ptr<Geometry::Square> share_type(new Geometry::Square(tmp,v));
      	  			polygon_vector.push_back(share_type);
-     	  			v.clear();
 
 					break;				
 
@@ -99,14 +105,16 @@ void Grid::read (std::string filename)
 
 					std::cout << "Other Polygon: " << n1 << n2 << n3 << n4 << std::endl;
 
-			 		v.push_back(point2d_vector[n1]);
-			 		v.push_back(point2d_vector[n2]);
-			 		v.push_back(point2d_vector[n3]);
-			 		v.push_back(point2d_vector[n4]);
+					std::vector<unsigned int> tmp;
+					tmp.reserve(4);
 
-     	  			std::shared_ptr<Geometry::Polygon> share_type(new Geometry::Polygon(v));
+			 		tmp.push_back(n1);
+			 		tmp.push_back(n2);
+			 		tmp.push_back(n3);
+			 		tmp.push_back(n4);
+
+     	  			std::shared_ptr<Geometry::Polygon> share_type(new Geometry::Polygon(tmp,v));
      	  			polygon_vector.push_back(share_type);
-     	  			v.clear();			 		
 
 					break;	
 				}

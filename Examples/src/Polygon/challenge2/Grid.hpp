@@ -8,6 +8,7 @@ private:
 	std::vector<std::shared_ptr<Geometry::AbstractPolygon>> polygon_vector;
 	Geometry::Vertices point2d_vector; //Vertices<=>std::vector<Point2D>
 	std::vector<Edge> edge_vector;
+	std::vector<Edge> boundary_vector;
 public: 
 	//! default constructor
 	Grid()=default;
