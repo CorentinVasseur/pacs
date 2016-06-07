@@ -1,4 +1,4 @@
-#ifndef HH_RK45INTEGRATOR_HH
+	#ifndef HH_RK45INTEGRATOR_HH
 #define HH_RK45INTEGRATOR_HH
 #include <functional>
 #include <vector>
@@ -27,9 +27,11 @@ namespace ODE
     @param error the estimated error
     @return the computed value for y
   */
-  double rk45_step(std::function<double (double const &, double const &)> const & dy,double const & y0,double const & h, double & error);
+    double rk45_step(std::function<double (double const &, double const &)> const & dy,double const & y0,double const & h, double & error);
 
-
+    double rk23_step(std::function<double (double const &, double const &)> const & dy,double const & y0,double const & h, double & error);
+    
+    
   //! Adaptive RK
   /*!  Integrates /f[ dy/dt(t)=f(t,y(t)) \quad t \in (t0,T] \quad
     y(t0)=y0 /f] controlling the error at t=T I avoid recursion

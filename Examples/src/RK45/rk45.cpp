@@ -13,7 +13,7 @@ namespace ODE
    double & error
    )
   {
-    // Butcher array (row 1 is trivial)
+    // Butcher array (row 1 is trivial) R34
     constexpr double a21 = 1./4.;
     constexpr double c2  = a21;
     constexpr double a31 = 3./32;
@@ -60,6 +60,7 @@ namespace ODE
     return y5;
   }
 
+    
 
   std::vector<std::pair<double,double>> 
     rk45(std::function<double (double const &, double const &)> const & dy,
@@ -128,8 +129,8 @@ namespace ODE
     //handle exceptions
     if(stepsCounter>=maxSteps && time < T)
       {
-	status=2;
-	throw std::runtime_error("RK45: Max number of time steps exceeded");
+        status=2;
+        throw std::runtime_error("RK45: Max number of time steps exceeded");
       }
     return solution;
   }

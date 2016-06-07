@@ -1,4 +1,4 @@
-#include "rk45.hpp"
+#include "RK.hpp"
 #include<iostream>
 #include <fstream>
 
@@ -7,6 +7,8 @@ int main()
 {
   using namespace std;
   using namespace ODE;
+    
+    
   //  auto fun = [](double const & t, double const & y){return -10*y;};
   auto fun = [](double const & t, double const & y){return -std::sin(t);};
   double t0=0;
@@ -15,9 +17,20 @@ int main()
   double h_init=0.2;
   double errorDesired=1.e-7;
   int status;
-  auto result= 
-    rk45(fun,t0,T,y0,h_init,(T-t0)/4.,errorDesired,status,10000);
+    
+ //last version #include "rk45.hpp"
+     //auto result=rk45(fun,t0,T,y0,h_init,(T-t0)/4.,errorDesired,status,10000);
+    
+ //   RK<RK23> rk23;
+  //  auto result=rk23.rk(fun,t0,T,y0,h_init,(T-t0)/4.,errorDesired,status,10000);
+    
+    auto result = rk<RK45,double> (1.0,1./64.,fun,t0,T,y0,h_init,(T-t0)/4.,errorDesired,status,10000);
+   
+   // auto result = rk<RK23,double> (1.0,1./64.,fun,t0,T,y0,h_init,(T-t0)/4.,errorDesired,status,10000);
+    
   ofstream file("result.dat");
+    
+    
   for (auto v : result)
     file<<v.first<<" "<<v.second<<std::endl;
   file.close();
