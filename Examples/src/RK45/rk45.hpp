@@ -29,8 +29,6 @@ namespace ODE
   */
     double rk45_step(std::function<double (double const &, double const &)> const & dy,double const & y0,double const & h, double & error);
 
-    double rk23_step(std::function<double (double const &, double const &)> const & dy,double const & y0,double const & h, double & error);
-    
     
   //! Adaptive RK
   /*!  Integrates /f[ dy/dt(t)=f(t,y(t)) \quad t \in (t0,T] \quad
